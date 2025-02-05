@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расширенный алгоритм Евклида</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        input { margin: 10px; padding: 5px; }
+        button { padding: 5px 10px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; display: inline-block; text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>Расширенный алгоритм Евклида</h2>
+    <label for="a">Введите A:</label>
+    <input type="number" id="a" value="252">
+    <label for="b">Введите B:</label>
+    <input type="number" id="b" value="105">
+    <button onclick="calculate()">Рассчитать</button>
+    <h3>Результат:</h3>
+    <pre id="result"></pre>
+
+    <script>
+        function extendedEuclid(a, b) {
+            let x0 = 1, x1 = 0, y0 = 0, y1 = 1;
+            let originalA = a, originalB = b;
+            let steps = `Решение для ${a} и ${b}:
+
+`;
+            let calculations = [];
+            let verification = [];
+            let xValues = [1, 0];
+            let yValues = [0, 1];
+            
+            while (b !== 0) {
+                let q = Math.floor(a / b);
+                let r = a % b;
+                calculations.push(`${a} = ${b} * ${q} + ${r}`);
+                
+                let tempX = xValues[0] - q * xValues[1];
+                let tempY = yValues[0] - q * yValues[1];
+                
+                xValues = [xValues[1], tempX];
+                yValues = [yValues[1], tempY];
+                
+                a = b;
+                b = r;
+            }
+            
+            let x = xValues[0], y = yValues[0];
+            let gcd = a;
+            steps += calculations.join('\n') + '\n\n';
+            steps += `Наибольший общий делитель: ${gcd}\n`;
+            steps += `Коэффициенты: x = ${x}, y = ${y}\n`;
+            
+            verification.push(`1 = ${originalA} * (${x}) + ${originalB} * (${y})`);
+            for (let i = calculations.length - 1; i >= 0; i--) {
+                let parts = calculations[i].match(/(\d+) = (\d+) \* (\d+) \+ (\d+)/);
+                if (!parts) continue;
+                let a = parseInt(parts[2]), q = parseInt(parts[3]), r = parseInt(parts[4]);
+                verification.push(`${r} = ${a} - ${q} * ${r}`);
+            }
+            
+            steps += `\nПроверка:\n` + verification.reverse().join('\n');
+            steps += `\n\n${originalA} * ${x} + ${originalB} * ${y} = ${gcd}`;
+            
+            return { gcd, x, y, steps };
+        }
+
+        function calculate() {
+            let a = parseInt(document.getElementById('a').value, 10);
+            let b = parseInt(document.getElementById('b').value, 10);
+            if (isNaN(a) || isNaN(b) || b === 0) {
+                document.getElementById('result').innerText = 'Введите корректные числа (B не должно быть 0).';
+                return;
+            }
+            let result = extendedEuclid(a, b);
+            document.getElementById('result').innerText = result.steps;
+        }
+    </script>
+</body>
+</html>
